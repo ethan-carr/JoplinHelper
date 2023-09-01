@@ -7,3 +7,4 @@ tests/
 
 # Ignore .env files
 .env
+.gitignore
