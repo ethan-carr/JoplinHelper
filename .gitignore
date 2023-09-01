@@ -1,0 +1,9 @@
+# Ignore compiled Python files
+*.pyc
+
+# Ignore node_modules directory
+node_modules/
+tests/
+
+# Ignore .env files
+.env
