@@ -41,4 +41,4 @@ def get_change(ticker):
 
     return [todays_date, open_price, close_price, prev_close, percentage_change]
 
-get_change("PIRS")
+#get_change("PIRS")
