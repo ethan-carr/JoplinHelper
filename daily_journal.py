@@ -23,7 +23,7 @@ def update_daily_journal(full_name,header,data,overwrite=False):    # Had to rew
 
     test = str(data).replace("\n","").replace(" ","")
     if str(test) == str(""):
-        print("Empty!")
+        #print("Empty!")
         return data
 
     # Check make sure the heading exists
@@ -69,6 +69,7 @@ def update_daily_journal(full_name,header,data,overwrite=False):    # Had to rew
 def load_previous(source,days_elap=1,max_days=7):   # Works as intended so far. 
     yesterday = (datetime.now() - timedelta(days=days_elap)).strftime("%A %m/%d/%Y")
 
+    # Catches errors of notes not found
     try:
         note_id=joplin.get_note(name=yesterday)
     except:
@@ -80,6 +81,14 @@ def load_previous(source,days_elap=1,max_days=7):   # Works as intended so far.
             print("No journal in the past " + str(max_days) + " days")
             return False
     
+    # Catches the "NO SUCH NOTES!" thing
+    if(str("NO SUCH NOTES!") in str(note_id)):
+        #print("No note!")
+        return load_previous(source=source,days_elap=days_elap+1,max_days=max_days)
+    elif days_elap >= max_days:
+        print("Not Found.")
+        return "Not Found."
+
     notedata = joplin.api.get_note(id_=note_id,fields="body, title")
     body = notedata.body
     
@@ -120,7 +129,7 @@ def load_todays(source):        # Works fine.
     
 
 
-def update_portfolio():
+def update_portfolio():     # Working fine so far...
     # Load in Paper portfolio from yesteday
     portfolio = load_todays("### Paper")
 
@@ -215,7 +224,7 @@ def update_portfolio():
 
 
 
-def add_to_portfolio(full_name,account,date,price,shares):
+def add_to_portfolio(full_name,account,date,price,shares):      # This is a rarely used function, probably consider removing it?
     port = load_todays("### "+str(account)+"\n")
     if(str(full_name) in str(port)):
         # Add in another way?
@@ -325,6 +334,8 @@ def add_to_todo(task,sublevel=1):
     text = text + "- [ ] " + str(task) 
     update_daily_journal(full_name=daily_name,header="## Todo's",data=text,overwrite=False)
 
+    return "Added task to the TODO list!"
+
 #add_to_todo("Finish Screening",sublevel=1)
 
 
@@ -369,7 +380,7 @@ def add_to_watching(full_name):     # Works great, adds a stock to the watchlist
 
 #print(joplin.get_note(name="APLE | Apple Hospitality REIT, Inc."))
 
-def add_to_buying(full_name, date, price, shares, account):
+def add_to_buying(full_name, date, price, shares, account):         # Works fine so far, as I can tell.
     daily_name = str(datetime.today().strftime("%A %m/%d/%Y"))
 
     note_id=joplin.get_note(name=full_name)
@@ -395,7 +406,7 @@ def add_to_buying(full_name, date, price, shares, account):
 
 
 
-def add_to_sell(full_name, date, price, shares,account):
+def add_to_sell(full_name, date, price, shares,account):        # Works fine, so far.
     daily_name = str(datetime.today().strftime("%A %m/%d/%Y"))
 
     if account not in ["Paper", "TD Ameritrade"]:
@@ -439,6 +450,6 @@ def add_to_sell(full_name, date, price, shares,account):
     remake = remake[:len(remake)-1]
     update_daily_journal(full_name=daily_name,header="## "+str(account),data=remake,overwrite=True)
 
-    return True
+    return "Added a sell order for " + str(ticker) + "!"
 
 #add_to_sell("AAOI | Applied Optoelectronics, Inc.","2023-08-30","15.03","100","Paper")

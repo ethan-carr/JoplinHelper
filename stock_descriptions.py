@@ -27,7 +27,7 @@ def create_stock_description(full_name):
 
     #| ### Resources
     #| - Finviz, Yahoo finance, Tradingview, EarningsWhisper, etc.
-    opening_prompt = 'I am making a journal entry for some stocks that look interesting to me, I need for you to fill in the template with the relevant information about the stock. I will give you an example for the input "IONQ | IonQ, Inc.":\nTechnology | Semiconductors | USA | NYSE\n\n### Overview\n\nIonQ, Inc. is a technology company focused on quantum computing. The company develops and manufactures quantum computers that leverage the principles of quantum mechanics to perform complex calculations. IonQ aims to advance the field of quantum computing by providing powerful and scalable quantum hardware for various applications, including optimization, cryptography, and material science. The company is headquartered in College Park, Maryland.\n\n### Resources\n- [Finviz](https://finviz.com/quote.ashx?t=IONQ)\n- [Yahoo Finance](https://finance.yahoo.com/quote/IONQ/?p=IONQ)\n- [Google News](https://news.google.com/search?q=IONQ&hl=en-US&gl=US&ceid=US%3Aen)\n- [Stock Analysis](https://stockanalysis.com/stocks/ionq/)\n- [MarketWatch](https://www.marketwatch.com/investing/stock/ionq)\n- [TradingView](https://www.tradingview.com/chart/?symbol=IONQ)\n- [EarningsWhisper](https://www.earningswhispers.com/stocks/IONQ)\n- [StockTwits](https://stocktwits.com/symbol/IONQ)\n\n End example prompt, now Generate for the stock "'+str(full_name)+'"'
+    opening_prompt = 'I am making a journal entry for some stocks that look interesting to me, I need for you to fill in the template with the relevant information about the stock. I will give you an example for the input "IONQ | IonQ, Inc.":\nTechnology | Semiconductors | USA | NYSE\n\n### Overview\nIonQ, Inc. is a technology company focused on quantum computing. The company develops and manufactures quantum computers that leverage the principles of quantum mechanics to perform complex calculations. IonQ aims to advance the field of quantum computing by providing powerful and scalable quantum hardware for various applications, including optimization, cryptography, and material science. The company is headquartered in College Park, Maryland.\n\n### Resources\n- [Finviz](https://finviz.com/quote.ashx?t=IONQ)\n- [Yahoo Finance](https://finance.yahoo.com/quote/IONQ/?p=IONQ)\n- [Google News](https://news.google.com/search?q=IONQ&hl=en-US&gl=US&ceid=US%3Aen)\n- [Stock Analysis](https://stockanalysis.com/stocks/ionq/)\n- [MarketWatch](https://www.marketwatch.com/investing/stock/ionq)\n- [TradingView](https://www.tradingview.com/chart/?symbol=IONQ)\n- [EarningsWhisper](https://www.earningswhispers.com/stocks/IONQ)\n- [StockTwits](https://stocktwits.com/symbol/IONQ)\n\n End example prompt, now Generate for the stock "'+str(full_name)+'"'
     
     output = openai.send_gptprompt(opening_prompt,tokens=2500)
 
@@ -39,7 +39,7 @@ def create_stock_description(full_name):
     data = data + news + "\n\n"
     
     # Yada Yada this is where my analysis needs to go, maybe get some of this automated, is there a tradingview api?
-    
+
     #| ## Comments
 
     #| # Analysis
@@ -71,33 +71,49 @@ def create_stock_description(full_name):
 
 
 
-def update_stock_description(full_name,header,data,overwrite=False):
+def update_stock_description(full_name,header,data,overwrite=False):    # Had to rewrite but its working better now. Thankfully.
     note_id=joplin.get_note(name=full_name)
     notedata = joplin.api.get_note(id_=note_id,fields="body, title")
     body = notedata.body
-    
+
+    test = str(data).replace("\n","").replace(" ","")
+    if str(test) == str(""):
+        print("Empty!")
+        return data
+
     # Check make sure the heading exists
     if header not in body:
-        print("The header is not contained in the body!")
+        print("The header is not contained in the body!" + str(header))
         return "The header is not contained in the body!"
-    
-    post = body[body.index(header)+len(header):]
+
+
     pre = body[:body.index(header)+len(header)]
+    post = body[body.index(header)+len(header):]
+    #print("PREPOST: " + post)
+    body = post[:post.index("\n\n")+1]
+    post = post[post.index("\n\n"):]
+
+    #print("PRE: " + pre)
+    #print("BODY: " + body)
+    #print("POST: " + post)
 
     if overwrite==True:
-        # Do overwrite of section
         
-        return data
-    elif overwrite==False:
-        # Do append
-        new_dat =  pre + data + post
-        print(new_dat)
+        # Do overwrite of section, I dont think this works.
+        new_dat =  pre + "\n" + data + post
         joplin.api.modify_note(id_=note_id,body=new_dat)
         return data
+
+    elif overwrite==False:
+        # Do append
+        new_dat =  pre + body + data + post
+        joplin.api.modify_note(id_=note_id,body=new_dat)
+        return data
+    
     else:
         # Error the mode is incorrect
-        print("Only do mode='w' or 'a' for write or append")
-        return "Only do mode='w' or 'a' for write or append"
+        print("Only do mode='True' or 'False' for overwrite or append")
+        return "Only do mode='True' or 'False' for overwrite or append"
 
 #update_stock_description("testarticle","## Header 1\n","HEllo",False)
 
@@ -111,7 +127,7 @@ def update_news(full_name):
         print("No news!")
         return "No news!"
     
-    update_stock_description(full_name,header="## News / Catalysts\n",data=news,overwrite=False)
+    update_stock_description(full_name,header="## News / Catalysts",data=news,overwrite=False)
 
 #update_news("EYPT | EyePoint Pharmaceuticals, Inc.")
 
@@ -121,7 +137,7 @@ def update_price(full_name):
     ticker = getTicker(full_name=full_name)
     price = yfinance.get_pricedata(ticker=ticker,period="1d")
 
-    update_stock_description(full_name,header="## Price Action\n",data=price,overwrite=False)
+    update_stock_description(full_name,header="## Price Action",data=price,overwrite=False)
 
 #update_price("EYPT | EyePoint Pharmaceuticals, Inc.")
 

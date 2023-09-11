@@ -6,17 +6,19 @@ def get_pricedata(ticker,period="5d"):
     data = str(stock.history(period=period, auto_adjust=False))
     data = data[data.index("\n")+1:]
     data = data[data.index("\n")+1:]
-    
+    print("DATA: " + data)
     arr = data.split('\n')
     fin = ""
     for ind in arr:
+        print("IND" + ind)
         ind = re.sub(r'\s+', ' ', ind)
         ind = ind.split(" ")
         ind = "- **"+ ind[0] + ":** " + ind[2] + " " + ind[3] + " " + ind[4] + " " + ind[5] + " " + ind[7]
 
-        fin = ind + "\n" + fin
+        fin = fin + ind + "\n"
     
     #fin = fin + "Date  Open  High  Low  Close  Volume"
+
     return(fin)
 
 

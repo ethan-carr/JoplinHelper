@@ -108,6 +108,19 @@ def refresh_list():
     items = titles
     return titles
 
+def add_to_todos():
+    inputs = []
+    questions = ["What is the todo?"]
+    for i in range(len(questions)):
+        user_input = simpledialog.askstring("Input", questions[i])
+        if user_input is None:
+            return  # User clicked Cancel
+        inputs.append(user_input)
+    
+
+    output_label.configure(text=daily_journal.add_to_todo(task=inputs[0]))
+    return 
+
 root = tk.Tk()
 root.title("Ethan's Joplin Stock Tool V0.3.1")
 
@@ -145,8 +158,8 @@ addselling_button = ttk.Button(button_frame, text="Add to Sells", command=add_to
 addselling_button.pack()
 
 # Add to portfolio
-addport_button = ttk.Button(button_frame, text="Add to Portfolio", command=add_to_port, width=30)
-addport_button.pack()
+#addport_button = ttk.Button(button_frame, text="Add to Portfolio", command=add_to_port, width=30)
+#addport_button.pack()
 
 # Update Portfolio
 updateport_button = ttk.Button(button_frame, text="Update Portfolio", command=update_port, width=30)
@@ -155,6 +168,10 @@ updateport_button.pack()
 # Create Stock Description
 #createdaily_button = ttk.Button(button_frame, text="Create Daily Journal", command=select_all, width=30)
 #createdaily_button.pack()
+
+# Add a todo
+addtodo_button = ttk.Button(button_frame, text="Add to TODO's",command=add_to_todos,width=30)
+addtodo_button.pack()
 
 # Some padding
 top_padding = ttk.Label(button_frame)
